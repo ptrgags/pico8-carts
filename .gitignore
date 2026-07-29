@@ -1,2 +1,7 @@
 # Files that others make -- not included in this repo
 explore/
+
+# Generated files
+*.p8.png
+*.html
+*.js
