@@ -1,6 +1,10 @@
 pico-8 cartridge // http://www.pico-8.com
-version 30
+version 43
 __lua__
+-- jazz hands
+-- by peter gagliardi (@ptrgags)
+-- 2021
+
 x = 8
 y = 8
 

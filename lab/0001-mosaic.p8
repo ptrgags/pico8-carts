@@ -1,6 +1,10 @@
 pico-8 cartridge // http://www.pico-8.com
-version 42
+version 43
 __lua__
+-- mosaic
+-- by peter gagliardi (@ptrgags)
+-- 2024
+
 -- offset for one row in the
 -- sprite sheet
 d_row = 16

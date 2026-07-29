@@ -1,8 +1,9 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
---worm circle
---by peter gagliardi (@ptrgags)
+-- worm circle
+-- by peter gagliardi (@ptrgags)
+-- 2026-07
 
 --[[
 fun with pattern fills!
