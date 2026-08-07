@@ -4,6 +4,10 @@ __lua__
 -- cassette counter
 -- by peter gagliardi (@ptrgags)
 
+-- inspired by a mix of:
+-- 
+-- - my rew/ffwd album cover: https://ptrgags.dev/#/album/rewind-and-ffwd
+
 function _init()
 	counter=0
 	count_max=1023
@@ -36,14 +40,14 @@ function _draw()
  cls(4)
  
  --reels of tape
-	circfill(32,64,r_left,1)
-	circfill(96,64,r_right,1)
+	circfill(32,64,r_left,5)
+	circfill(96,64,r_right,5)
 
  --line of tape between reels
  --(approx)
- line(32-r_left,64,0,128-16,1)
- line(95+r_right,64,127,128-16,1)
- line(8,128-8,128-8,128-8,1)
+ line(32-r_left,64,0,128-16,5)
+ line(95+r_right,64,127,128-16,5)
+ line(8,128-8,128-8,128-8,5)
 
 	--decorate center of reels
 	circfill(32,64,min_r,7)
