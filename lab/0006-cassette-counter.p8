@@ -65,7 +65,13 @@ end
 
 function draw_transp(transp)
  -- cursor
-	spr(7,transp.x+transp.cur*16+4,0)
+ local press_offset=sel(
+ 	0,2,btnp(❎))
+	spr(
+		7,
+		transp.x+transp.cur*16+4,
+		press_offset
+	)
 
 	for i=1,5 do
 	 -- spr 16 is the button
@@ -104,6 +110,7 @@ reel_turns=51
 
 guide_turns=91
 r_guide=4
+d_guide=2*r_guide
 s_guide=2
 
 function make_tape()
@@ -189,7 +196,7 @@ function draw_tape(tape)
 
  --tape guides
  spr(1,0,128-3*r_guide)
- spr(1,128-2*r_guide,128-3*r_guide)
+ spr(1,128-d_guide,128-3*r_guide)
  
  local guide_angle=p*guide_turns
  local cg=cos(guide_angle)
@@ -197,16 +204,16 @@ function draw_tape(tape)
  
  line(
  	r_guide,
- 	128-2*r_guide,
+ 	128-d_guide,
  	r_guide+s_guide*cg,
- 	128-2*r_guide+s_guide*sg,
+ 	128-d_guide+s_guide*sg,
  	1
  )
  line(
  	128-r_guide,
- 	128-2*r_guide,
+ 	128-d_guide,
  	128-r_guide+s_guide*sg,
- 	128-2*r_guide+s_guide*-cg,
+ 	128-d_guide+s_guide*-cg,
  	1
  )
 end
