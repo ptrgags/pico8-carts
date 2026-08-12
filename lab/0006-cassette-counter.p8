@@ -9,7 +9,6 @@ __lua__
 --   https://www.lexaloffle.com/bbs/?pid=194143
 -- - my rew/ffwd album cover
 --   https://ptrgags.dev/#/album/rewind-and-ffwd
-
 function _init()
 	tape=make_tape()
 	trans=make_transp()
@@ -29,7 +28,7 @@ function _draw()
 end
 
 -->8
--- transport
+-- transport buttons
 function make_transp()
  local spd_slow=1
  local spd_fast=15
@@ -101,7 +100,9 @@ max_r=32
 
 reel_l={x=32,y=64}
 reel_r={x=96,y=64}
+reel_turns=51
 
+guide_turns=91
 r_guide=4
 s_guide=2
 
@@ -148,27 +149,38 @@ function draw_tape(tape)
 
  --line of tape between reels
  --(approx)
- line(32-rl,64,0,128-2*r_guide,5)
- line(95+rr,64,127,128-2*r_guide,5)
- line(r_guide,127-r_guide,128-r_guide,127-r_guide,5)
+ line(
+ 	32-rl,64,0,128-2*r_guide,5)
+ line(
+ 	95+rr,64,127,128-2*r_guide,5)
+ line(
+ 	r_guide,
+ 	127-r_guide,
+ 	128-r_guide,
+ 	127-r_guide,
+ 	5
+ )
 
 	--decorate center of reels
 	circfill(32,64,min_r,0)
 	circfill(96,64,min_r,0)
 	for i=0,6 do
-	 local angle=i/6
+	 local phase=i/6
+	 local reel_angle=p*reel_turns
+	 local c=cos(reel_angle+phase)
+	 local s=sin(reel_angle+phase)
 	 line(
-	 	32+0.5*min_r*cos(reel_spd*p+angle),
-	 	64+0.5*min_r*sin(reel_spd*p+angle),
-	 	32+0.9*min_r*cos(reel_spd*p+angle),
-	 	64+0.9*min_r*sin(reel_spd*p+angle),
+	 	32+0.5*min_r*c,
+	 	64+0.5*min_r*s,
+	 	32+0.9*min_r*c,
+	 	64+0.9*min_r*s,
 	 	7
 	 )
 	 line(
-	 	96+0.5*min_r*cos(reel_spd*p+angle),
-	 	64+0.5*min_r*sin(reel_spd*p+angle),
-	 	96+0.9*min_r*cos(reel_spd*p+angle),
-	 	64+0.9*min_r*sin(reel_spd*p+angle),
+	 	96+0.5*min_r*c,
+	 	64+0.5*min_r*s,
+	 	96+0.9*min_r*c,
+	 	64+0.9*min_r*s,
 	 	7
 	 )
 	end
@@ -179,18 +191,22 @@ function draw_tape(tape)
  spr(1,0,128-3*r_guide)
  spr(1,128-2*r_guide,128-3*r_guide)
  
+ local guide_angle=p*guide_turns
+ local cg=cos(guide_angle)
+ local sg=sin(guide_angle)
+ 
  line(
  	r_guide,
  	128-2*r_guide,
- 	r_guide+s_guide*cos(guide_spd*p),
- 	128-2*r_guide+s_guide*sin(guide_spd*p),
+ 	r_guide+s_guide*cg,
+ 	128-2*r_guide+s_guide*sg,
  	1
  )
  line(
  	128-r_guide,
  	128-2*r_guide,
- 	128-r_guide+s_guide*cos(guide_spd*p+0.25),
- 	128-2*r_guide+s_guide*sin(guide_spd*p+0.25),
+ 	128-r_guide+s_guide*sg,
+ 	128-2*r_guide+s_guide*-cg,
  	1
  )
 end
