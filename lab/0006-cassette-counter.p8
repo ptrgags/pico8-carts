@@ -9,103 +9,244 @@ __lua__
 --   https://www.lexaloffle.com/bbs/?pid=194143
 -- - my rew/ffwd album cover
 --   https://ptrgags.dev/#/album/rewind-and-ffwd
-
 function _init()
-	counter=0
-	count_max=1023
-	
-	min_r=12
-	max_r=32
-	
-	r_left=max_r
-	r_right=min_r
-	
-	counter=0
-	
-	spd_stop=0
-	spd_slow=1
-	spd_fast=32
-	speed=spd_slow
-	
-	r_guide=4
-	s_guide=2
+	tape=make_tape()
+	trans=make_transp()
 end
 
 function _update()
-	counter+=speed
-	counter=mid(
-		counter,0,count_max)
-	percent=counter/count_max
+	update_transp(trans)
 	
-	r_left=min_r+(1-percent)*(max_r-min_r)
-	r_right=min_r+percent*(max_r-min_r)
+	tape.speed=trans.spd
+	update_tape(tape)
 end
 
 function _draw()
  cls(4)
- 
- --reels of tape
-	circfill(32,64,r_left,5)
-	circfill(96,64,r_right,5)
+ draw_transp(trans)
+ draw_tape(tape)
+end
+
+-->8
+-- transport buttons
+function make_transp()
+ local spd_slow=1
+ local spd_fast=15
+	return {
+	 sel=3,
+	 speeds={
+	 	-spd_fast,
+	 	-spd_slow,
+	 	0,
+	 	spd_slow,
+	 	spd_fast
+	 },
+	 cur=3,
+	 spd=0,
+	 x=8
+	}
+end
+
+function get_speed(transp)
+	return transp.speeds[transp.sel]
+end
+
+function update_transp(transp)
+	if (btnp(⬅️)) transp.cur-=1
+	if (btnp(➡️)) transp.cur+=1
+	transp.cur=mid(transp.cur,1,5)
+	
+	if btnp(❎) then
+		transp.sel=transp.cur
+	end
+	
+	transp.spd=transp.speeds[transp.sel]
+end
+
+function draw_transp(transp)
+ -- cursor
+ local press_offset=sel(
+ 	0,2,btnp(❎))
+	spr(
+		7,
+		transp.x+transp.cur*16+4,
+		press_offset
+	)
+
+	for i=1,5 do
+	 -- spr 16 is the button
+	 --  (not pressed)
+	 -- spr 18 is the button
+	 --  (pressed)
+	 local idx=sel(16,18,i==transp.sel)
+		spr(idx,transp.x+i*16,8,2,2)
+		
+		local ico=1+i
+		local y_o=sel(-2,2,i==transp.sel)
+		spr(ico,transp.x+i*16+4,8+4+y_o)
+	end
+end
+-->8
+-- util
+
+-- i find the and/or idiom
+-- confusing, so let's make
+-- a select function. this is
+-- like select() in wgsl
+-- see https://www.w3.org/tr/wgsl/#select-builtin
+function sel(a,b,x)
+ return x and b or a
+end
+-->8
+--reels of tape
+
+count_max=1023
+min_r=12
+max_r=32
+
+reel_l={x=32,y=64}
+reel_r={x=96,y=64}
+reel_turns=51
+
+guide_turns=91
+r_guide=4
+d_guide=2*r_guide
+s_guide=2
+
+function make_tape()
+	return {
+		counter=0,
+		r_left=max_r,
+		r_right=min_r,
+		percent=0,
+	}
+end
+
+-- update the tape
+-- important: make sure
+-- to update tape.speed
+-- beforehand
+function update_tape(tape)
+	tape.counter+=tape.speed
+	tape.counter=mid(
+		tape.counter,0,count_max)
+		
+	local p=tape.counter/count_max
+	local q=1-p
+	
+	tape.percent=p
+	tape.r_left=
+		min_r+q*(max_r-min_r)
+	tape.r_right=
+		min_r+p*(max_r-min_r)
+end
+
+function draw_tape(tape)
+	local p=tape.percent
+	local rl=tape.r_left
+	local rr=tape.r_right
+	
+	--tape speed 
+	local guide_spd=tape.speed*2
+	local reel_spd=tape.speed*8.5
+	
+	--reels of tape
+	circfill(
+		reel_l.x,reel_l.y,rl,5)
+	circfill(
+		reel_r.x,reel_r.y,rr,5)
 
  --line of tape between reels
  --(approx)
- line(32-r_left,64,0,128-2*r_guide,5)
- line(95+r_right,64,127,128-2*r_guide,5)
- line(r_guide,127-r_guide,128-r_guide,127-r_guide,5)
+ line(
+ 	reel_l.x-rl,reel_l.y,0,128-2*r_guide,5)
+ line(
+ 	reel_r.x+rr-1,reel_r.y,127,128-2*r_guide,5)
+ line(
+ 	r_guide,
+ 	127-r_guide,
+ 	128-r_guide,
+ 	127-r_guide,
+ 	5
+ )
 
 	--decorate center of reels
-
-	circfill(32,64,min_r,0)
-	circfill(96,64,min_r,0)
+	circfill(
+		reel_l.x,reel_l.y,min_r,0)
+	circfill(
+		reel_r.x,reel_r.y,min_r,0)
 	for i=0,6 do
-	 angle=i/6
+	 local phase=i/6
+	 local reel_angle=p*reel_turns
+	 local c=cos(reel_angle+phase)
+	 local s=sin(reel_angle+phase)
 	 line(
-	 	32+0.5*min_r*cos(32*percent+angle),
-	 	64+0.5*min_r*sin(32*percent+angle),
-	 	32+0.9*min_r*cos(32*percent+angle),
-	 	64+0.9*min_r*sin(32*percent+angle),
+	 	reel_l.x+0.5*min_r*c,
+	 	reel_l.y+0.5*min_r*s,
+	 	reel_l.x+0.9*min_r*c,
+	 	reel_l.y+0.9*min_r*s,
 	 	7
 	 )
 	 line(
-	 	96+0.5*min_r*cos(32*percent+angle),
-	 	64+0.5*min_r*sin(32*percent+angle),
-	 	96+0.9*min_r*cos(32*percent+angle),
-	 	64+0.9*min_r*sin(32*percent+angle),
+	 	reel_r.x+0.5*min_r*c,
+	 	reel_r.y+0.5*min_r*s,
+	 	reel_r.x+0.9*min_r*c,
+	 	reel_r.y+0.9*min_r*s,
 	 	7
 	 )
 	end
-	circ(32,64,min_r,7)
-	circ(96,64,min_r,7)
+	circ(
+		reel_l.x,reel_l.y,min_r,7)
+	circ(
+		reel_r.x,reel_r.y,min_r,7)
 
  --tape guides
  spr(1,0,128-3*r_guide)
- spr(1,128-2*r_guide,128-3*r_guide)
+ spr(
+ 	1,128-d_guide,128-3*r_guide)
+ 
+ local guide_angle=
+ 	p*guide_turns
+ local cg=cos(guide_angle)
+ local sg=sin(guide_angle)
  
  line(
  	r_guide,
- 	128-2*r_guide,
- 	r_guide+s_guide*cos(64*percent),
- 	128-2*r_guide+s_guide*sin(64*percent),
+ 	128-d_guide,
+ 	r_guide+s_guide*cg,
+ 	128-d_guide+s_guide*sg,
  	1
  )
  line(
  	128-r_guide,
- 	128-2*r_guide,
- 	128-r_guide+s_guide*cos(64*percent+0.25),
- 	128-2*r_guide+s_guide*sin(64*percent+0.25),
+ 	128-d_guide,
+ 	128-r_guide+s_guide*sg,
+ 	128-d_guide+s_guide*-cg,
  	1
  )
- 
- print(counter,0,0,10)
 end
-
 __gfx__
-00000000007777000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0000000007dddd700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-007007007dddddd70000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-000770007dd55dd70000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-000770007dd55dd70000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-007007007dddddd70000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0000000007dddd700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000007777000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000007777000000000000000cc0000000000cc0000000000000000ee0000000000000000000000000000000000000000000000000000000000000000000
+0000000007dddd70000c00c0000cccc00cc00cc00cccc0000c00c000000ee0000000000000000000000000000000000000000000000000000000000000000000
+007007007dddddd700cc0cc00cccccc00cc00cc00cccccc00cc0cc00000ee0000000000000000000000000000000000000000000000000000000000000000000
+000770007dd55dd70cccccc0ccccccc00cc00cc00ccccccc0cccccc0000ee0000000000000000000000000000000000000000000000000000000000000000000
+000770007dd55dd7ccccccc0ccccccc00cc00cc00ccccccc0ccccccceeeeeeee0000000000000000000000000000000000000000000000000000000000000000
+007007007dddddd70cccccc00cccccc00cc00cc00cccccc00cccccc00eeeeee00000000000000000000000000000000000000000000000000000000000000000
+0000000007dddd7000cc0cc0000cccc00cc00cc00cccc0000cc0cc0000eeee000000000000000000000000000000000000000000000000000000000000000000
+0000000000777700000c00c000000cc0000000000cc000000c00c000000ee0000000000000000000000000000000000000000000000000000000000000000000
+dddddddddddddddd0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d66666666666666d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d66666666666666d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d66666666666666ddddddddddddddddd000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d66666666666666ddddddddddddddddd000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d66666666666666dd66666666666666d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d66666666666666dd66666666666666d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d66666666666666dd66666666666666d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d66666666666666dd66666666666666d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d66666666666666dd66666666666666d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d66666666666666dd66666666666666d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+ddddddddddddddddd66666666666666d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+ddddddddddddddddd66666666666666d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+ddddddddddddddddd66666666666666d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+ddddddddddddddddd66666666666666d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+dddddddddddddddddddddddddddddddd000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
