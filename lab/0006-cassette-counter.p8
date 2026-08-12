@@ -135,8 +135,10 @@ function update_tape(tape)
 	local q=1-p
 	
 	tape.percent=p
-	tape.r_left=min_r+q*(max_r-min_r)
-	tape.r_right=min_r+p*(max_r-min_r)
+	tape.r_left=
+		min_r+q*(max_r-min_r)
+	tape.r_right=
+		min_r+p*(max_r-min_r)
 end
 
 function draw_tape(tape)
@@ -157,9 +159,9 @@ function draw_tape(tape)
  --line of tape between reels
  --(approx)
  line(
- 	32-rl,64,0,128-2*r_guide,5)
+ 	reel_l.x-rl,reel_l.y,0,128-2*r_guide,5)
  line(
- 	95+rr,64,127,128-2*r_guide,5)
+ 	reel_r.x+rr-1,reel_r.y,127,128-2*r_guide,5)
  line(
  	r_guide,
  	127-r_guide,
@@ -169,36 +171,42 @@ function draw_tape(tape)
  )
 
 	--decorate center of reels
-	circfill(32,64,min_r,0)
-	circfill(96,64,min_r,0)
+	circfill(
+		reel_l.x,reel_l.y,min_r,0)
+	circfill(
+		reel_r.x,reel_r.y,min_r,0)
 	for i=0,6 do
 	 local phase=i/6
 	 local reel_angle=p*reel_turns
 	 local c=cos(reel_angle+phase)
 	 local s=sin(reel_angle+phase)
 	 line(
-	 	32+0.5*min_r*c,
-	 	64+0.5*min_r*s,
-	 	32+0.9*min_r*c,
-	 	64+0.9*min_r*s,
+	 	reel_l.x+0.5*min_r*c,
+	 	reel_l.y+0.5*min_r*s,
+	 	reel_l.x+0.9*min_r*c,
+	 	reel_l.y+0.9*min_r*s,
 	 	7
 	 )
 	 line(
-	 	96+0.5*min_r*c,
-	 	64+0.5*min_r*s,
-	 	96+0.9*min_r*c,
-	 	64+0.9*min_r*s,
+	 	reel_r.x+0.5*min_r*c,
+	 	reel_r.y+0.5*min_r*s,
+	 	reel_r.x+0.9*min_r*c,
+	 	reel_r.y+0.9*min_r*s,
 	 	7
 	 )
 	end
-	circ(reel_l.x,reel_l.y,min_r,7)
-	circ(reel_r.x,reel_r.y,min_r,7)
+	circ(
+		reel_l.x,reel_l.y,min_r,7)
+	circ(
+		reel_r.x,reel_r.y,min_r,7)
 
  --tape guides
  spr(1,0,128-3*r_guide)
- spr(1,128-d_guide,128-3*r_guide)
+ spr(
+ 	1,128-d_guide,128-3*r_guide)
  
- local guide_angle=p*guide_turns
+ local guide_angle=
+ 	p*guide_turns
  local cg=cos(guide_angle)
  local sg=sin(guide_angle)
  
