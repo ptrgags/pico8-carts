@@ -1,7 +1,9 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
-
+--seven segment
+--by peter gagliardi (@ptrgags)
+--2026-08
 
 function _init()
 	cls()
