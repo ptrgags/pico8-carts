@@ -55,16 +55,27 @@ end
 
 function update_music(idx)
 	if idx==1 then
+	 -- play backwards, sped up
 		music(6)
 	elseif idx==2 then
+	 -- play the backwards tune
 		music(4)
 	elseif idx==3 then
+	 -- stop
 		music(-1)
 	elseif idx==4 then
+	 -- play the tune
 		music(0)
 	elseif idx==5 then
+	 -- play the sped up tune
 		music(2)
 	end
+
+
+ --note: when the tape
+ --reaches the end (see reels
+ --tab), the music will be
+ --stopped
 end
 
 function update_transp(transp)
